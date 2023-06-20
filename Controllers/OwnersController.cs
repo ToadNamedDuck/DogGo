@@ -3,6 +3,7 @@ using DogGo.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System;
 
 namespace DogGo.Controllers
 {
@@ -37,57 +38,69 @@ namespace DogGo.Controllers
         // POST: Owner/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Owner owner)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _ownerRepo.AddOwner(owner);
+                return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View(owner);
             }
         }
 
-        // GET: Owner/Edit/5
+        // GET: Owners/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Owner owner = _ownerRepo.GetOwnerById(id);
+
+            if (owner == null)
+            {
+                return NotFound();
+            }
+
+            return View(owner);
         }
 
-        // POST: Owner/Edit/5
+        // POST: Owners/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Owner owner)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _ownerRepo.UpdateOwner(owner);
+
+                return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View(owner);
             }
         }
 
         // GET: Owner/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            Owner _owner = _ownerRepo.GetOwnerById(id);
+            return View(_owner);
         }
 
         // POST: Owner/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Owner owner)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _ownerRepo.DeleteOwner(id);
+                return RedirectToAction("Index");
             }
             catch
             {
-                return View();
+                return View(owner);
             }
         }
     }
