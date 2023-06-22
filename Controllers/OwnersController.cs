@@ -4,16 +4,28 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
+using DogGo.Models.ViewModels;
 
 namespace DogGo.Controllers
 {
     public class OwnersController : Controller
     {
         private readonly IOwnerRepository _ownerRepo;
+        private readonly IDogRepository _dogRepo;
+        private readonly IWalkerRepository _walkerRepo;
+        private readonly INeighborhoodRepository _neighborhoodRepo;
 
-        public OwnersController(IOwnerRepository ownerRepo)
+
+        public OwnersController(
+            IOwnerRepository ownerRepository,
+            IDogRepository dogRepository,
+            IWalkerRepository walkerRepository,
+            INeighborhoodRepository neighborhoodRepository)
         {
-            _ownerRepo = ownerRepo;
+            _ownerRepo = ownerRepository;
+            _dogRepo = dogRepository;
+            _walkerRepo = walkerRepository;
+            _neighborhoodRepo = neighborhoodRepository;
         }
         // GET: Owner
         public ActionResult Index()
@@ -22,17 +34,36 @@ namespace DogGo.Controllers
             return View(_owners);
         }
 
-        // GET: Owner/Details/5
+        // GET: Owners/Details/5
         public ActionResult Details(int id)
         {
-            Owner _owner = _ownerRepo.GetOwnerById(id);
-            return View(_owner);
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
+            List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+            ProfileViewModel vm = new ProfileViewModel()
+            {
+                Owner = owner,
+                Dogs = dogs,
+                Walkers = walkers
+            };
+
+            return View(vm);
         }
 
-        // GET: Owner/Create
+        // GET: Owners/Create
         public ActionResult Create()
         {
-            return View();
+            //This method has been updated to create the new view model object so we can populate a dropdown with neighborhoods.
+            List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
+
+            OwnerFormViewModel vm = new OwnerFormViewModel()
+            {
+                Owner = new Owner(),
+                Neighborhoods = neighborhoods
+            };
+
+            return View(vm);
         }
 
         // POST: Owner/Create
