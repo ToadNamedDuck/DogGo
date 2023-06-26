@@ -1,42 +1,63 @@
-﻿@model DogGo.Models.Walker
+﻿@model DogGo.Models.ViewModels.WalkerDetailsViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    string apoS = "'s";
+    ViewData["Title"] = $"{Model.Walker.Name + apoS} Details";
 }
-
-<h1>Details</h1>
-
+<h1 class="text-center">@(Model.Walker.Name + "'s Profile")</h1>
 <div>
-    <h4>Walker</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NeighborhoodId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NeighborhoodId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            <img class="bg-info" src="@Model.ImageUrl" alt="avatar" />
-        </dd>
+    <dl class="row justify-content-center">
+        <img src="@Model.Walker.ImageUrl" alt="@Model.Walker.Name" width="80px" height="auto" />
+        <div class="column">
+            <h1>@Model.Walker.Name</h1>
+            <h4>Walker</h4>
+        </div>
     </dl>
 </div>
+<hr/>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    <h3 class="text-center">Bio</h3>
+    <table class="table">
+        <tr>
+            <th>Name</th>
+            <th>Neighborhood</th>
+            <th>Total Walks Done</th>
+        </tr>
+        <tr>
+            <td>@Model.Walker.Name</td>
+            <td>@Model.Walker.Neighborhood.Name</td>
+            <td>@Model.Walks.Count</td>
+        </tr>
+    </table>
+</div>
+<h3 class="text-center">List Of Walks</h3>
+<div style="display:flex" class="flex-row justify-content-around">
+    <hr/>
+    <table class="table" style="width:60%">
+        <tr>
+            <th colspan="2">Date</th>
+            <th colspan="2">Client</th>
+            <th colspan="2">Duration</th>
+        </tr>
+    @{
+        foreach(Walk walk in Model.Walks)
+        {
+                <tr>
+                    <td>@walk.Date.ToLongDateString()</td>
+                    <td></td>
+                    <td>@walk.Client.Name</td>
+                    <td></td>
+                    <td>@(walk.Duration / 60) Minutes</td>
+                </tr>
+        }
+    }
+    </table>
+    <div class="card text-center justify-content-center" style="width:40%">
+        <h3>Total Walk Time</h3>
+        <h4>@(Model.Walks.Sum(walk => walk.Duration)/60) Minutes</h4>
+    </div>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Walker.Id }) |
     <a asp-action="Index">Back to List</a>
 </div>

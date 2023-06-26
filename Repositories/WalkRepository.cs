@@ -54,19 +54,29 @@ namespace DogGo.Repositories
                 conn.Open();
                 using(SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"select Id, [Date], Duration, WalkerId, DogId from Walks";
+                    cmd.CommandText = @"select w.Id wId, o.Id as oId, o.Name as oName, [Date], Duration, WalkerId, DogId from Walks w
+                                        left join Dog d
+                                        on d.Id = w.DogId
+                                        left join Owner o
+                                        on o.Id = d.OwnerId";
 
                     using(SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            Owner _owner = new Owner()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("oId")),
+                                Name = reader.GetString(reader.GetOrdinal("oName"))
+                            };
                             Walk _walk = new Walk()
                             {
                                 Id = reader.GetInt32(reader.GetOrdinal("Id")),
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                                 Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
                                 WalkerId = reader.GetInt32(reader.GetOrdinal("WalkerID")),
-                                DogId = reader.GetInt32(reader.GetOrdinal("DogId"))
+                                DogId = reader.GetInt32(reader.GetOrdinal("DogId")),
+                                Client = _owner
                             };
                             walks.Add(_walk);
                         }
@@ -84,22 +94,32 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"select Id as wId, [Date], Duration, WalkerId, DogId 
-                                        from Walks
-                                        where wId = @id";
+                    cmd.CommandText = @"select o.Id as oId, o.Name, w.Id as wId, [Date], Duration, WalkerId, DogId 
+                                        from Walks w
+                                        left join Dog d
+                                        on w.DogId = d.Id
+                                        left join Owner o
+                                        on d.OwnerId = o.Id
+                                        where WalkerId = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            Owner _owner = new Owner()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("oId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            };
                             Walk _walk = new Walk()
                             {
                                 Id = reader.GetInt32(reader.GetOrdinal("wId")),
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                                 Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
                                 WalkerId = reader.GetInt32(reader.GetOrdinal("WalkerID")),
-                                DogId = reader.GetInt32(reader.GetOrdinal("DogId"))
+                                DogId = reader.GetInt32(reader.GetOrdinal("DogId")),
+                                Client = _owner
                             };
                             walks.Add(_walk);
                         }
