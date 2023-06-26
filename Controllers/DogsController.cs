@@ -3,6 +3,7 @@ using DogGo.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace DogGo.Controllers
 {
@@ -17,7 +18,8 @@ namespace DogGo.Controllers
         // GET: DogsController
         public ActionResult Index()
         {
-            List<Dog> _dogs = _dogRepo.GetAllDogs();
+            int ownerId = GetCurrentUserId();//set the list to the logged in users tab. should be an empty page if the user isnt logged in, i think.
+            List<Dog> _dogs = _dogRepo.GetDogsByOwnerId(ownerId);
             return View(_dogs);
         }
 
@@ -109,6 +111,12 @@ namespace DogGo.Controllers
             {
                 return View(dog);
             }
+        }
+
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
         }
     }
 }
