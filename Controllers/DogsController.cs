@@ -1,5 +1,6 @@
 ﻿using DogGo.Models;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace DogGo.Controllers
             _dogRepo = dogRepo;
         }
         // GET: DogsController
+        [Authorize] //requires authorization. list is only blank is user has no dogs.
         public ActionResult Index()
         {
             int ownerId = GetCurrentUserId();//set the list to the logged in users tab. should be an empty page if the user isnt logged in, i think.
@@ -39,6 +41,7 @@ namespace DogGo.Controllers
         // POST: DogsController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]//need user to be logged in for creating a dog
         public ActionResult Create(Dog dog)
         {
             try
